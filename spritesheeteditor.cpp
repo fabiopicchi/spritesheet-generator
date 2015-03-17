@@ -53,7 +53,7 @@ void SpriteSheetEditor::drawSpriteSheetPreview(int width)
 {
     exportPreview->clear();
     QPainter* exported = new QPainter();
-    spriteSheet = QImage(QSize(width * frames.at(0).width(), (qCeil(frames.length() / width) + 1) * frames.at(0).height()), QImage::Format_ARGB32_Premultiplied);
+    spriteSheet = QImage(QSize(width * frames.at(0).width() * scale, (qCeil(frames.length() / width) + 1) * frames.at(0).height() * scale), QImage::Format_ARGB32_Premultiplied);
     spriteSheet.fill(Qt::GlobalColor::transparent);
     exported->begin(&spriteSheet);
     exported->scale(scale, scale);
@@ -62,7 +62,7 @@ void SpriteSheetEditor::drawSpriteSheetPreview(int width)
     exported->end();
     delete exported;
 
-    qreal previewScale = qreal(ui->graphicsView_2->width()) / (width * frames.at(0).width());
+    qreal previewScale = qreal(ui->graphicsView_2->width()) / (width * frames.at(0).width() * scale);
     if(previewScale < 1)
     {
         QTransform m;
