@@ -11,6 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = SpriteSheetGeneratorQt
 TEMPLATE = app
 CONFIG += c++11
+CONFIG += static
 
 
 SOURCES += main.cpp\

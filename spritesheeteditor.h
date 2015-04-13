@@ -35,10 +35,10 @@ public slots:
     void searchFiles();
     void searchReference();
     void cropTransparency();
-    void setScaleValue(int s);
-    void setReferenceAlpha(int a);
-    void setVisibleFrames(int i);
-    void drawSpriteSheetPreview(int width);
+    void setScaleValue(qint32 s);
+    void setReferenceAlpha(qint32 a);
+    void setVisibleFrames(qint32 i);
+    void drawSpriteSheetPreview(qint32 width);
     void exportSpriteSheet();
 };
 

@@ -22,10 +22,6 @@ SpriteSheetEditor::SpriteSheetEditor(QWidget *parent) :
     ui->graphicsView->setScene(preview);
     ui->graphicsView_2->setScene(exportPreview);
 
-    connect(ui->actionImport, SIGNAL(triggered()), this, SLOT(searchFiles()));
-    connect(ui->actionImport_reference, SIGNAL(triggered()), this, SLOT(searchReference()));
-    connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(close()));
-
     ui->horizontalSlider->setDisabled(true);
     ui->horizontalSlider_2->setDisabled(true);
     ui->pushButton->setDisabled(true);
@@ -34,6 +30,9 @@ SpriteSheetEditor::SpriteSheetEditor(QWidget *parent) :
     ui->spinBox_2->setDisabled(true);
     ui->spinBox_3->setDisabled(true);
 
+    connect(ui->actionImport, SIGNAL(triggered()), this, SLOT(searchFiles()));
+    connect(ui->actionImport_reference, SIGNAL(triggered()), this, SLOT(searchReference()));
+    connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(close()));
     connect(ui->horizontalSlider, SIGNAL(valueChanged(int)), this, SLOT(setScaleValue(int)));
     connect(ui->horizontalSlider_2, SIGNAL(valueChanged(int)), this, SLOT(setReferenceAlpha(int)));
     connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(cropTransparency()));
@@ -49,15 +48,15 @@ SpriteSheetEditor::~SpriteSheetEditor()
     delete ui;
 }
 
-void SpriteSheetEditor::drawSpriteSheetPreview(int width)
+void SpriteSheetEditor::drawSpriteSheetPreview(qint32 width)
 {
     exportPreview->clear();
     QPainter* exported = new QPainter();
-    spriteSheet = QImage(QSize(width * frames.at(0).width() * scale, (qCeil(frames.length() / width) + 1) * frames.at(0).height() * scale), QImage::Format_ARGB32_Premultiplied);
+    spriteSheet = QImage(QSize(width * frames.at(0).width() * scale, qCeil(qreal(frames.length())/width) * frames.at(0).height() * scale), QImage::Format_ARGB32_Premultiplied);
     spriteSheet.fill(Qt::GlobalColor::transparent);
     exported->begin(&spriteSheet);
     exported->scale(scale, scale);
-    for(int i = 0, l = frames.length(); i < l; i++)
+    for(qint32 i = 0, l = frames.length(); i < l; i++)
         exported->drawImage((i % width) * frames.at(i).width(), qFloor(i / width) * frames.at(i).height(), frames.at(i));
     exported->end();
     delete exported;
@@ -126,7 +125,7 @@ void SpriteSheetEditor::searchFiles()
     ui->spinBox_3->setMaximum(frames.length());
 }
 
-void SpriteSheetEditor::setReferenceAlpha(int a)
+void SpriteSheetEditor::setReferenceAlpha(qint32 a)
 {
     qreal alpha = qreal(a) / ui->horizontalSlider->maximum();
 
@@ -139,7 +138,7 @@ void SpriteSheetEditor::setReferenceAlpha(int a)
     drawSpriteSheetPreview(ui->spinBox_3->value());
 }
 
-void SpriteSheetEditor::setScaleValue(int s)
+void SpriteSheetEditor::setScaleValue(qint32 s)
 {
     scale = qreal(s) / ui->horizontalSlider->maximum();
     matrix.setMatrix(
@@ -157,45 +156,45 @@ void SpriteSheetEditor::setScaleValue(int s)
     drawSpriteSheetPreview(ui->spinBox_3->value());
 }
 
-int minOpaqueX(QImage frame)
+qint32 minOpaqueX(QImage frame)
 {
-    for(int i = 0, width = frame.width(); i < width; i++)
-        for(int j = 0, height = frame.height(); j < height; j++)
+    for(qint32 i = 0, width = frame.width(); i < width; i++)
+        for(qint32 j = 0, height = frame.height(); j < height; j++)
             if(qAlpha(frame.pixel(i, j)) != 0)
                 return i;
     return 0;
 }
 
-int minOpaqueY(QImage frame)
+qint32 minOpaqueY(QImage frame)
 {
-    for(int j = 0, height = frame.height(); j < height; j++)
-        for(int i = 0, width = frame.width(); i < width; i++)
+    for(qint32 j = 0, height = frame.height(); j < height; j++)
+        for(qint32 i = 0, width = frame.width(); i < width; i++)
             if(qAlpha(frame.pixel(i, j)) != 0) return j;
     return 0;
 }
 
-int maxOpaqueX(QImage frame)
+qint32 maxOpaqueX(QImage frame)
 {
-    for(int i = frame.width() - 1; i >= 0; i--)
-        for(int j = 0, height = frame.height(); j < height; j++)
+    for(qint32 i = frame.width() - 1; i >= 0; i--)
+        for(qint32 j = 0, height = frame.height(); j < height; j++)
             if(qAlpha(frame.pixel(i, j)) != 0) return i;
     return 0;
 }
 
-int maxOpaqueY(QImage frame)
+qint32 maxOpaqueY(QImage frame)
 {
-    for(int j = frame.height() - 1; j >= 0; j--)
-        for(int i = 0, width = frame.width(); i < width; i++)
+    for(qint32 j = frame.height() - 1; j >= 0; j--)
+        for(qint32 i = 0, width = frame.width(); i < width; i++)
             if(qAlpha(frame.pixel(i, j)) != 0) return j;
     return 0;
 }
 
 void SpriteSheetEditor::cropTransparency()
 {
-    int minX = INT_MAX;
-    int maxX = 0;
-    int minY = INT_MAX;
-    int maxY = 0;
+    qint32 minX = INT_MAX;
+    qint32 maxX = 0;
+    qint32 minY = INT_MAX;
+    qint32 maxY = 0;
     for(auto frame : frames)
         if(minX > minOpaqueX(frame)) minX = minOpaqueX(frame);
     for(auto frame : frames)
@@ -217,14 +216,14 @@ void SpriteSheetEditor::cropTransparency()
     drawSpriteSheetPreview(ui->spinBox_3->value());
 }
 
-void SpriteSheetEditor::setVisibleFrames(int i)
+void SpriteSheetEditor::setVisibleFrames(qint32 i)
 {
-    int min = ui->spinBox->value();
-    int max = ui->spinBox_2->value();
+    qint32 min = ui->spinBox->value();
+    qint32 max = ui->spinBox_2->value();
 
     for(auto d : displayedFrames) d->setVisible(false);
 
-    for(int i = min; i <= max; i++)
+    for(qint32 i = min; i <= max; i++)
         displayedFrames.at(i)->setVisible(true);
 }
 
